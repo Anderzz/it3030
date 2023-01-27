@@ -5,8 +5,6 @@ class Dense(Layer):
     def __init__(self, input_size, output_size, regularization = '', reg_lambda = 0.0):
         self.regularization = regularization
         self.reg_lambda = reg_lambda
-        #self.w = np.random.rand(output_size, input_size) - 0.5
-        #self.b = np.random.rand(output_size, 1) - 0.5
         # do xavier initialization of the weights
         self.w = np.random.randn(output_size, input_size) / np.sqrt(input_size)
         self.b = np.random.randn(output_size, 1) / np.sqrt(input_size)
@@ -14,13 +12,13 @@ class Dense(Layer):
 
     def forward(self, input):
         self.input = input
-        return np.dot(self.w, self.input) + self.b
+        return np.einsum('ij,jk->ik', self.w, self.input) + self.b
         
 
     def backward(self, output_gradient, lr):
-        biases_gradient =  np.zeros((output_gradient.shape[0], 1))
-        weights_gradient = np.dot(output_gradient, self.input.T)
-        input_gradient = np.dot(self.w.T, output_gradient)
+        biases_gradient =  np.zeros((output_gradient.shape[0], 1)) # needed incase of no regularization
+        weights_gradient = np.einsum('ij,ik->ik', output_gradient, self.input.T)
+        input_gradient = np.einsum('ij,jk->ik', self.w.T, output_gradient)
         if self.regularization == "l1":
             weights_gradient += self.reg_lambda * np.sign(self.w)
             biases_gradient = self.reg_lambda * np.sign(self.b)
@@ -28,6 +26,7 @@ class Dense(Layer):
             weights_gradient += self.reg_lambda * self.w
             biases_gradient = self.reg_lambda * self.b
 
+        # update weights and biases
         self.w -= lr * weights_gradient
         self.b -= lr * (output_gradient + biases_gradient)
 

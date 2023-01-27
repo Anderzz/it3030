@@ -25,15 +25,18 @@ x_train, y_train = preprocess_data(x_train, y_train, 1000)
 x_test, y_test = preprocess_data(x_test, y_test, 20)
 
 # neural network
-network = [
-    Dense(28 * 28, 40),
-    Sigmoid(),
-    Dense(40, 10, regularization='l2', reg_lambda=0.0),
-    Softmax()
-]
+# network = [
+#     Dense(28 * 28, 40, wr=(-.1,.1), br=(-.1,.1)),
+#     Sigmoid(),
+#     Dense(40, 10, regularization='l2', reg_lambda=0.0),
+#     Softmax()
+# ]
+from parse_network import parse_file
+network, loss, dloss, lr, wlambda, wrt = parse_file('network1.txt')
 
 # train
-train(network, cross_entropy, dcross_entropy, x_train, y_train, epochs=50, lr=0.1, batch_size = 8)
+#train(network, cross_entropy, dcross_entropy, x_train, y_train, epochs=50, lr=0.1, batch_size = 8)
+train(network, loss, dloss, x_train, y_train, epochs=100, lr=lr, batch_size = 8)
 
 # test
 for x, y in zip(x_test, y_test):

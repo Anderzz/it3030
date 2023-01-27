@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+
 def predict(network, input):
     output = input
     for layer in network:
@@ -93,9 +95,21 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
         layer.set_weights(best_weights[i])
 
     if verbose:
+        # plot the training error in a separate plot
+        plt.figure(figsize=(10, 13))
+        plt.subplot(211)
+        plt.plot(errors)
+        plt.xlabel('epoch')
+        plt.ylabel('error')
+        plt.legend(['train'])
+        plt.subplot(212)
         plt.plot(errors)
         plt.plot(val_errors)
         plt.xlabel('epoch')
         plt.ylabel('error')
         plt.legend(['train', 'val'])
+
+        # plt.plot(errors)
+        # plt.legend(['train', 'val'])
+        # plt.plot(val_errors)
         plt.show()

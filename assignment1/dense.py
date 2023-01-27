@@ -2,13 +2,21 @@ from layer import Layer
 import numpy as np
 
 class Dense(Layer):
-    def __init__(self, input_size, output_size, regularization = '', reg_lambda = 0.0):
+    def __init__(self, input_size, output_size, regularization = '', reg_lambda = 0.0, lr = 0.0, wr = None, br = None):
         self.regularization = regularization
         self.reg_lambda = reg_lambda
-        # do xavier initialization of the weights
-        self.w = np.random.randn(output_size, input_size) / np.sqrt(input_size)
-        self.b = np.random.randn(output_size, 1) / np.sqrt(input_size)
+        self.lr = lr
+        # if a weight range is not specified, use glorot initialization
+        if wr is None:
+            self.w = np.random.randn(output_size, input_size) / np.sqrt(input_size)
+        else:
+            self.w = np.random.uniform(wr[0], wr[1], (output_size, input_size))
 
+        # if a bias range is not specified, use glorot initialization
+        if br is None:
+            self.b = np.random.randn(output_size, 1) / np.sqrt(input_size)
+        else:
+            self.b = np.random.uniform(br[0], br[1], (output_size, 1))
 
     def forward(self, input):
         self.input = input
@@ -19,6 +27,9 @@ class Dense(Layer):
         biases_gradient =  np.zeros((output_gradient.shape[0], 1)) # needed incase of no regularization
         weights_gradient = np.einsum('ij,ik->ik', output_gradient, self.input.T)
         input_gradient = np.einsum('ij,jk->ik', self.w.T, output_gradient)
+        # if lr is not specified, use the global one passed in from train
+        if self.lr == 0.0:
+            self.lr = lr
         if self.regularization == "l1":
             weights_gradient += self.reg_lambda * np.sign(self.w)
             biases_gradient = self.reg_lambda * np.sign(self.b)
@@ -27,8 +38,8 @@ class Dense(Layer):
             biases_gradient = self.reg_lambda * self.b
 
         # update weights and biases
-        self.w -= lr * weights_gradient
-        self.b -= lr * (output_gradient + biases_gradient)
+        self.w -= self.lr * weights_gradient
+        self.b -= self.lr * (output_gradient + biases_gradient)
 
         return input_gradient
 

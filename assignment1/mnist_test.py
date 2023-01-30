@@ -23,7 +23,7 @@ def preprocess_data(x, y, limit):
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 x_train, y_train = preprocess_data(x_train, y_train, 1000)
 x_test, y_test = preprocess_data(x_test, y_test, 20)
-
+print(f"number of training examples: {x_train.shape[0]}")
 # neural network
 # network = [
 #     Dense(28 * 28, 40, wr=(-.1,.1), br=(-.1,.1)),
@@ -33,20 +33,20 @@ x_test, y_test = preprocess_data(x_test, y_test, 20)
 # ]
 from parse_network import parse_file
 network, loss, dloss, lr, wlambda, wrt = parse_file('network1.txt')
+print(x_train.shape)
+# # train
+# #train(network, cross_entropy, dcross_entropy, x_train, y_train, epochs=50, lr=0.1, batch_size = 8)
+# train(network, loss, dloss, x_train, y_train, epochs=100, lr=lr, batch_size = 8)
 
-# train
-#train(network, cross_entropy, dcross_entropy, x_train, y_train, epochs=50, lr=0.1, batch_size = 8)
-train(network, loss, dloss, x_train, y_train, epochs=100, lr=lr, batch_size = 8)
+# # test
+# for x, y in zip(x_test, y_test):
+#     output = predict(network, x)
+#     print('pred:', np.argmax(output), '\ttrue:', np.argmax(y))
 
-# test
-for x, y in zip(x_test, y_test):
-    output = predict(network, x)
-    print('pred:', np.argmax(output), '\ttrue:', np.argmax(y))
-
-# calculate the accuracy
-accuracy = 0
-for x, y in zip(x_test, y_test):
-    output = predict(network, x)
-    accuracy += np.argmax(output) == np.argmax(y)
-accuracy /= len(x_test)
-print('accuracy:', accuracy)
+# # calculate the accuracy
+# accuracy = 0
+# for x, y in zip(x_test, y_test):
+#     output = predict(network, x)
+#     accuracy += np.argmax(output) == np.argmax(y)
+# accuracy /= len(x_test)
+# print('accuracy:', accuracy)

@@ -46,6 +46,7 @@ def parse_file(filepath):
     network = []
     wr = None
     br = None
+    lr = default_lr
 
 
     for layer in layers:

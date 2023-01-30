@@ -17,7 +17,8 @@ def train_val_split(x, y, val_ratio = 0.2):
     y_val = y[:val_size]
     return x_train, y_train, x_val, y_val
 
-def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, epochs = 1000, lr = 0.01, verbose = True, batch_size = 1, early_stopping=True, patience=10):
+def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, epochs = 1000, lr = 0.01, 
+            verbose = True, batch_size = 1, early_stopping=True, patience=50, plot_batch_error=False, shuffle=True):
     """ Train a neural network using mini-batch gradient descent with early stopping and data shuffling.
 
     Args:
@@ -41,15 +42,17 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
     curr_best_val_error = np.inf
     best_weights = None
     counter = 0
+    batch_errors = []
 
     for epoch in range(epochs):
         epoch_error = 0
         total_batch = int(len(x_train) / batch_size)
 
         # shuffle training data
-        indices = np.random.permutation(len(x_train))
-        x_train = x_train[indices]
-        y_train = y_train[indices]
+        if shuffle:
+            indices = np.random.permutation(len(x_train))
+            x_train = x_train[indices]
+            y_train = y_train[indices]
         for i in range(total_batch):
             error = 0
             x_batch = x_train[i*batch_size:(i+1)*batch_size]
@@ -58,14 +61,21 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
                 # forward pass
                 output = predict(network, x)
                 error += loss(y, output)
+                
                 # backward pass
                 grad = dloss(y, output)
                 for layer in reversed(network):
                     grad = layer.backward(grad, lr)
 
+            # store every 5th batch error for plotting
+            if i % 5 == 0:
+                batch_errors.append(error)
+
         # store errors for plotting
             error /= len(x_train)
+            #error /= batch_size
             epoch_error += error
+
         epoch_error /= total_batch
         errors.append(epoch_error)
         val_error = 0
@@ -94,22 +104,29 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
     for i, layer in enumerate(network):
         layer.set_weights(best_weights[i])
 
+    
+
     if verbose:
         # plot the training error in a separate plot
         plt.figure(figsize=(10, 13))
         plt.subplot(211)
         plt.plot(errors)
         plt.xlabel('epoch')
-        plt.ylabel('error')
+        plt.ylabel('loss')
         plt.legend(['train'])
         plt.subplot(212)
         plt.plot(errors)
         plt.plot(val_errors)
         plt.xlabel('epoch')
-        plt.ylabel('error')
+        plt.ylabel('loss')
         plt.legend(['train', 'val'])
-
-        # plt.plot(errors)
-        # plt.legend(['train', 'val'])
-        # plt.plot(val_errors)
         plt.show()
+
+        if plot_batch_error:
+            # Plot batch errors
+            plt.plot(batch_errors)
+            plt.plot(val_errors)
+            plt.xlabel('Minibatch')
+            plt.ylabel('Loss')
+            plt.legend(['train', 'val'])
+            plt.show()

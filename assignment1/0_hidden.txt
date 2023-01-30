@@ -1,0 +1,11 @@
+DEFAULTS
+loss:cross_entropy
+lr:0.1
+wlambda:0.001
+wrt:l2
+DEFAULTS
+
+LAYERS
+dense in:784 out:5
+softmax
+LAYERS

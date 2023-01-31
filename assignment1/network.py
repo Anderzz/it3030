@@ -17,10 +17,10 @@ def train_val_split(x, y, val_ratio = 0.2):
     y_val = y[:val_size]
     return x_train, y_train, x_val, y_val
 
-def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, epochs = 1000, lr = 0.01, 
-            verbose = True, batch_size = 1, early_stopping=True, patience=50, plot_batch_error=False, shuffle=True):
-    """ Train a neural network using mini-batch gradient descent with early stopping and data shuffling.
 
+def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, epochs = 1000, lr = 0.01, 
+            verbose = True, batch_size = 1, early_stopping=True, patience=50, shuffle=True):
+    """ Train a neural network using mini-batch gradient descent with early stopping and data shuffling.
     Args:
         network (_type_): Neural network
         loss (_type_): Loss function
@@ -37,15 +37,14 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
     # if we don't have validation data, split training data into training and validation
     if not x_val:
         x_train, y_train, x_val, y_val = train_val_split(x_train, y_train)
-    errors = []
-    val_errors = []
     curr_best_val_error = np.inf
     best_weights = None
     counter = 0
+    val_errors = []
+    train_errors = []
     batch_errors = []
 
     for epoch in range(epochs):
-        epoch_error = 0
         total_batch = int(len(x_train) / batch_size)
 
         # shuffle training data
@@ -53,31 +52,29 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
             indices = np.random.permutation(len(x_train))
             x_train = x_train[indices]
             y_train = y_train[indices]
+        train_error = 0
         for i in range(total_batch):
-            error = 0
             x_batch = x_train[i*batch_size:(i+1)*batch_size]
             y_batch = y_train[i*batch_size:(i+1)*batch_size]
+
+            batch_error = 0
             for x, y in zip(x_batch, y_batch):
                 # forward pass
                 output = predict(network, x)
-                error += loss(y, output)
                 
                 # backward pass
+                batch_error += loss(y, output)
+                #train_error += loss(y, output)
                 grad = dloss(y, output)
                 for layer in reversed(network):
                     grad = layer.backward(grad, lr)
 
-            # store every 5th batch error for plotting
-            if i % 5 == 0:
-                batch_errors.append(error)
-
-        # store errors for plotting
-            error /= len(x_train)
-            #error /= batch_size
-            epoch_error += error
-
-        epoch_error /= total_batch
-        errors.append(epoch_error)
+            train_error += batch_error / batch_size
+            if i % 10 == 0:
+                batch_errors.append(batch_error / batch_size)
+        train_error /= total_batch
+        train_errors.append(train_error)
+        
         val_error = 0
 
         # compute validation error
@@ -86,9 +83,9 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
             val_error += loss(y, val_output)
         val_error /= len(x_val)
         val_errors.append(val_error)
-        
+
         if verbose:
-            print(f"epoch {epoch+1}/{epochs} error = {epoch_error} val_error = {val_error}")
+            print(f"epoch {epoch+1}/{epochs} error = {train_error} val_error = {val_error}")
         
         # early stopping
         if val_error < curr_best_val_error:
@@ -103,30 +100,17 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
     # update the layers with the weights with the lowest validation error
     for i, layer in enumerate(network):
         layer.set_weights(best_weights[i])
-
     
-
-    if verbose:
-        # plot the training error in a separate plot
-        plt.figure(figsize=(10, 13))
-        plt.subplot(211)
-        plt.plot(errors)
-        plt.xlabel('epoch')
-        plt.ylabel('loss')
-        plt.legend(['train'])
-        plt.subplot(212)
-        plt.plot(errors)
-        plt.plot(val_errors)
-        plt.xlabel('epoch')
-        plt.ylabel('loss')
-        plt.legend(['train', 'val'])
-        plt.show()
-
-        if plot_batch_error:
-            # Plot batch errors
-            plt.plot(batch_errors)
-            plt.plot(val_errors)
-            plt.xlabel('Minibatch')
-            plt.ylabel('Loss')
-            plt.legend(['train', 'val'])
-            plt.show()
+    plt.figure(figsize=(10, 13))
+    plt.subplot(211)
+    plt.plot(train_errors, label="training error")
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend()
+    plt.subplot(212)
+    plt.plot(train_errors, label="training error")
+    plt.plot(val_errors, label="validation error")
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend()
+    plt.show()

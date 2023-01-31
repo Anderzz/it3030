@@ -29,10 +29,10 @@ n = 28
 im, targets, labels, dim, flat = gen_standard_cases(count=600, types=['ball', 'frame', 'triangle', 'polygon', 'flower'], rows=n, cols=n , noise=0, show=False)
 x_train, x_test, y_train, y_test = train_test_split(im, targets, train_size=0.8)
 x_train = preprocess(x_train)
-x_test = preprocess(x_test)
-y_train = one_hot(y_train, 5)
-y_test = one_hot(y_test, 5)
 out_dim = len(targets[0])
+x_test = preprocess(x_test)
+y_train = one_hot(y_train, out_dim)
+y_test = one_hot(y_test, out_dim)
 
 
 network, loss, dloss, lr, wlambda, wrt = parse_file('2_hidden.txt')
@@ -56,4 +56,4 @@ for x, y in zip(x_test, y_test):
     output = predict(network, x)
     accuracy += np.argmax(output) == np.argmax(y)
 accuracy /= len(x_test)
-print('accuracy:', accuracy)
+print(f"accuracy = {round(accuracy, 2)}")

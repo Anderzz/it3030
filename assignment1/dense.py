@@ -8,13 +8,13 @@ class Dense(Layer):
         self.lr = lr
         # if a weight range is not specified, use glorot initialization
         if wr is None:
-            self.w = np.random.randn(output_size, input_size) / np.sqrt(input_size)
+            self.w = np.random.randn(input_size, output_size) * np.sqrt(1 / input_size)
         else:
             self.w = np.random.uniform(wr[0], wr[1], (output_size, input_size))
 
         # if a bias range is not specified, use glorot initialization
         if br is None:
-            self.b = np.random.randn(output_size, 1) / np.sqrt(input_size)
+            self.b = np.zeros((1, output_size))
         else:
             self.b = np.random.uniform(br[0], br[1], (output_size, 1))
 

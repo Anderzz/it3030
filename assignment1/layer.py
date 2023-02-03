@@ -1,4 +1,5 @@
 class Layer:
+    # base class that is inherited by all layers
     def __init__(self):
         self.input = None
         self.output = None

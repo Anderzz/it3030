@@ -25,7 +25,9 @@ class Dense(Layer):
 
     def backward(self, output_gradient, lr):
         biases_gradient =  np.zeros((output_gradient.shape[0], 1)) # needed incase of no regularization
-        weights_gradient = np.einsum('ij,ik->ik', output_gradient, self.input.T)
+        # delta wrt w
+        weights_gradient = np.einsum('ij,jk->ik', output_gradient, self.input.T)
+        # delta wrt x (input)
         input_gradient = np.einsum('ij,jk->ik', self.w.T, output_gradient)
         # if lr is not specified, use the global one passed in from train
         if self.lr == 0.0:

@@ -91,15 +91,17 @@ def train(network, loss, dloss, x_train, y_train, x_val = None, y_val = None, ep
         if val_error < curr_best_val_error:
             curr_best_val_error = val_error
             best_weights = [layer.get_weights() for layer in network]
+            counter = 0
         else:
             counter += 1
             if early_stopping and counter >= patience:
                 if verbose:
                     print(f"No improvement in validation loss for {patience} epochs! Early stopping after {epoch+1} epochs.")
+
+                # update the layers with the weights with the lowest validation error
+                for i, layer in enumerate(network):
+                    layer.set_weights(best_weights[i])
                 break
-    # update the layers with the weights with the lowest validation error
-    for i, layer in enumerate(network):
-        layer.set_weights(best_weights[i])
     
     plt.figure(figsize=(10, 13))
     plt.subplot(211)

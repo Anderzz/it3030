@@ -1,5 +1,5 @@
 import numpy as np
-from doodler import *
+from doodler import gen_standard_cases
 import matplotlib.pyplot as plt
 from network import *
 from dense import Dense
@@ -7,26 +7,10 @@ from activation import Activation
 from loss import *
 from activation_functions import *
 from parse_network import parse_file
-
-
-def train_test_split(im, targets, train_size=0.8):
-    # split into train and test
-    split = int(len(im) * train_size)
-    x_train, x_test = im[:split], im[split:]
-    y_train, y_test = targets[:split], targets[split:]
-    return x_train, x_test, y_train, y_test
-
-def preprocess(x):
-    x = x.astype("float32") / 255
-    x = x.reshape(x.shape[0], x.shape[1] * x.shape[2], 1)
-    return x
-
-def one_hot(y, num_classes):
-  y = np.eye(num_classes)[y][:, 0, :]
-  return y.reshape(y.shape[0], num_classes, 1)
+from utils import *
 
 n = 28
-im, targets, labels, dim, flat = gen_standard_cases(count=600, types=['ball', 'frame', 'triangle', 'polygon', 'flower'], rows=n, cols=n , noise=0, show=False)
+im, targets, labels, dim, flat = gen_standard_cases(count=600, types=['ball', 'frame', 'triangle', 'polygon', 'flower'], rows=n, cols=n , noise=0.0, show=False)
 x_train, x_test, y_train, y_test = train_test_split(im, targets, train_size=0.8)
 x_train = preprocess(x_train)
 out_dim = len(targets[0])
@@ -48,7 +32,7 @@ network, loss, dloss, lr, wlambda, wrt = parse_file('2_hidden.txt')
 #     Softmax()
 # ]
 
-train(network, loss, dloss, x_train, y_train, epochs=100, lr=lr, batch_size = 4, patience=20, shuffle=True)
+train(network, loss, dloss, x_train, y_train, epochs=100, lr=lr, batch_size = 4, patience=10, shuffle=True)
 
 # test
 accuracy = 0

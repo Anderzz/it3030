@@ -7,6 +7,7 @@ import ast
 import re
 
 def parse_file(filepath):
+    # parse a config file and return a network with all necessary parameters
     with open(filepath, 'r') as f:
         data = f.read()
 

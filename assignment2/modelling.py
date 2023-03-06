@@ -33,6 +33,13 @@ def generate_sequence(df: pd.DataFrame, tw: int, pw: int, target_columns, drop_t
         data[i] = {'seq': seq, 'target': target}
     return data
 
+def plot_losses(tr, va):
+  import matplotlib.pyplot as plt
+  fig, ax = plt.subplots()
+  ax.plot(tr, label='train')
+  ax.plot(va, label='validation')
+  plt.show()
+
 class SequenceDataset(Dataset):
     def __init__(self, data: dict):
         self.data = data
@@ -45,6 +52,7 @@ class SequenceDataset(Dataset):
     def __getitem__(self, idx):
         sample = self.data[idx]
         return torch.Tensor(sample['seq']), torch.Tensor(sample['target'])
+
     
 
 class Model(nn.Module):
@@ -115,6 +123,7 @@ class Model(nn.Module):
 
 
 def main():
+
     BATCH_SIZE = 32
     split_ratio = 0.8
     n_in, n_out = 24, 1
@@ -124,21 +133,65 @@ def main():
     seq_len = 24
     n_inputs = 1
 
-    USE_CUDA = torch.cuda.is_available()
-    device = torch.device("cuda" if USE_CUDA else "cpu")
-
-    model = Model(n_inputs, n_hidden, n_out, seq_len, n_dnn_layers, USE_CUDA).to(device)
-
     df  = pd.read_csv('./data/simple_df.csv')
     sequences = generate_sequence(df, n_in, n_out, 'consumption')
     dataset = SequenceDataset(sequences)
 
-    train_len = int(len(dataset)*split_ratio)
-    lens = [train_len, len(dataset)-train_len]
-    train_set, val_set = random_split(dataset, lens)
+    # train_len = int(len(dataset)*split_ratio)
+    # lens = [train_len, len(dataset)-train_len]
+    # train_set, val_set = random_split(dataset, lens)
 
-    train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
-    val_loader = DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+    # train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+    # val_loader = DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+
+
+
+    df.head(5)
+    # USE_CUDA = torch.cuda.is_available()
+    # device = torch.device("cuda" if USE_CUDA else "cpu")
+
+    # model = Model(n_inputs, n_hidden, n_out, seq_len, n_dnn_layers, USE_CUDA).to(device)
+
+    # lr = 4e-4
+    # n_epochs = 20
+    # criterion = nn.MSELoss().to(device)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    # t_losses, v_losses = [], []
+
+    # for epoch in range(n_epochs):
+    #     train_loss, val_loss = 0.0, 0.0
+
+    #     model.train()
+    #     for x, y in train_loader:
+    #         optimizer.zero_grad()
+
+    #         x = x.to(device)
+    #         y = y.squeeze().to(device)
+
+    #         preds = model(x).squeeze()
+    #         loss = criterion(preds, y)
+    #         train_loss += loss.item()
+    #         loss.backward()
+    #         optimizer.step()
+    #     epoch_loss = train_loss / len(train_loader)
+    #     t_losses.append(epoch_loss)
+
+    #     # validation
+    #     model.eval()
+    #     for x, y in val_loader:
+    #         with torch.no_grad():
+    #             x = x.to(device)
+    #             y = y.squeeze().to(device)
+    #             preds = model(x).squeeze()
+    #             error = criterion(preds, y)
+    #         val_loss += error.item()
+    #     val_loss = val_loss / len(val_loader)
+    #     v_losses.append(val_loss)
+
+    #     print(f'{epoch} - train: {epoch_loss}, valid: {val_loss}')
+    # plot_losses(t_losses, v_losses)
+
 
 
 if __name__ == '__main__':

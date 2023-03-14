@@ -85,7 +85,7 @@ def _preprocess_frost_data(weather):
         ]
         len_holes = pd.DataFrame({"holes": len_holes})
         print(f"Holes by length and occurrences in column {hole_col}:")
-        print(len_holes.value_counts().head(5))
+        #print(len_holes.value_counts().head(5))
         interp_lim = 3
         print(f"Filling holes up to length {interp_lim}")
         weather[hole_col] = weather[hole_col].interpolate(limit=interp_lim)

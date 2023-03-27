@@ -52,14 +52,3 @@ def prediction_target_plot(predictions, train_mean, train_std, index):
     plt.scatter(range(1, len(p)), t0[1:], color="orange")
     plt.legend()
     plt.show()
-    
-def generate_lstm_sequences(df, tw, pw):    
-    data = dict()
-    L = len(df)
-    for i in range(L-tw):
-        sequence = df[i:i+tw].values 
-        target = df[i+tw:i+tw+pw].values
-
-        data[i] = {'sequence': sequence, 'target': target}
-
-    return data

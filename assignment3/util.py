@@ -85,4 +85,4 @@ def generate_test_images(model, dataloader, device):
 
             outputs.append(output)
             labels.append(label)
-    return np.concatenate(outputs), np.concatenate(labels)
+    return torch.concatenate(outputs), torch.concatenate(labels)

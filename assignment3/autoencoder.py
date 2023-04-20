@@ -50,7 +50,9 @@ class Autoencoder(nn.Module):
 
     def forward(self, x):
 
-        if x.shape[-1] > 1: # color
+        if x.shape[-1] > 1:
+            # if color, run each channel through separately
+            # then stack them into rgb
             encoded_list = []
             decoded_list = []
 

@@ -3,9 +3,10 @@ import torch
 
 
 class Autoencoder(nn.Module):
-    def __init__(self, num_channels=1):
+    def __init__(self, num_channels=1, task=""):
         super().__init__()
         self.num_channels = num_channels
+        self.task = task
 
         self.encoder = nn.Sequential(
             nn.Conv2d(num_channels, 16, 3, stride=2, padding=1),  # 28x28 -> 14x14
@@ -49,8 +50,7 @@ class Autoencoder(nn.Module):
     #     return decoded
 
     def forward(self, x):
-
-        if x.shape[-1] > 1:
+        if x.shape[1] > 1:
             # if color, run each channel through separately
             # then stack them into rgb
             encoded_list = []
@@ -67,6 +67,7 @@ class Autoencoder(nn.Module):
 
             encoded = torch.stack(encoded_list, dim=-1)
             decoded = torch.stack(decoded_list, dim=-1)
+            # print(f"encoded shape, {encoded.shape}")
 
             return decoded
 
@@ -75,3 +76,6 @@ class Autoencoder(nn.Module):
             encoded = self.encoder(x)
             decoded = self.decoder(encoded)
             return decoded
+
+    def generate(self, x):
+        pass

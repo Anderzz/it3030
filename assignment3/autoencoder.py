@@ -3,10 +3,9 @@ import torch
 
 
 class Autoencoder(nn.Module):
-    def __init__(self, num_channels=1, task=""):
+    def __init__(self, num_channels=1):
         super().__init__()
         self.num_channels = num_channels
-        self.task = task
 
         self.encoder = nn.Sequential(
             nn.Conv2d(num_channels, 16, 3, stride=2, padding=1),  # 28x28 -> 14x14
@@ -44,10 +43,6 @@ class Autoencoder(nn.Module):
             nn.Sigmoid(),
         )
 
-    # def forward(self, x):
-    #     encoded = self.encoder(x)
-    #     decoded = self.decoder(encoded)
-    #     return decoded
 
     def forward(self, x):
         if x.shape[1] > 1:
@@ -57,6 +52,7 @@ class Autoencoder(nn.Module):
             decoded_list = []
 
             for channel in range(x.shape[1]):
+                # print(f"forward {x.shape}")
                 gray_im = x[:, channel, :, :].reshape(-1, 1, 28, 28)
 
                 encoded = self.encoder(gray_im)
@@ -78,4 +74,13 @@ class Autoencoder(nn.Module):
             return decoded
 
     def generate(self, x):
-        pass
+        # generate an rgb image from a sample of the latent space
+
+            decoded_list = []
+            for channel in range(x.shape[1]):
+                gray_vec = x[:, channel, :]
+                decoded = self.decoder(gray_vec)
+                decoded_list.append(decoded)
+
+            decoded = torch.stack(decoded_list, dim=-1)
+            return decoded

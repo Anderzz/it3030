@@ -3,7 +3,7 @@ import numpy as np
 import torch
 
 
-def tile_images(images: np.ndarray,  no_across: np.int = None, no_down: np.int = None,
+def tile_images(images: np.ndarray,  no_across: int = None, no_down: int = None,
                 show: bool = False, file_name: str = None) -> np.ndarray:
     """
     Take as set of images in, and tile them.
@@ -51,7 +51,7 @@ def tile_images(images: np.ndarray,  no_across: np.int = None, no_down: np.int =
     if color_channels == 1:
         plt.imshow(tiled_image[:, :, 0], cmap="binary")
     else:
-        plt.imshow(tiled_image.astype(np.float32))
+        plt.imshow(tiled_image.astype(float))
     plt.xticks([], [])
     plt.yticks([], [])
     plt.tight_layout()
